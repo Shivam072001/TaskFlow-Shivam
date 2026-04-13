@@ -308,13 +308,13 @@ docker compose up
 
 ### Access Points
 
-| Service | URL |
-|---|---|
-| **Frontend** | http://localhost:3000 |
-| **Backend API** | http://localhost:8080 |
-| **WebSocket** | `ws://localhost:3000/ws?token=<jwt>` (via Nginx) or `ws://localhost:8080/ws?token=<jwt>` (direct) |
-| **PostgreSQL** | `localhost:5432` |
-| **Health Check** | http://localhost:8080/health |
+| Service | Local Deployment | Live Deployment |
+|---|---|---|
+| **Frontend** | http://localhost:3000 | [https://task-flow-shivam.vercel.app/](https://task-flow-shivam.vercel.app/) |
+| **Backend API** | http://localhost:8080 | [https://taskflow-shivam.onrender.com](https://taskflow-shivam.onrender.com) |
+| **WebSocket** | `ws://localhost:8080/ws?token=<jwt>` | `wss://taskflow-shivam.onrender.com/ws?token=<jwt>` |
+| **PostgreSQL** | `localhost:5432` | *(Managed Hosted DB)* |
+| **Health Check** | http://localhost:8080/health | [https://taskflow-shivam.onrender.com/health](https://taskflow-shivam.onrender.com/health) |
 
 ### Manual Commands
 
