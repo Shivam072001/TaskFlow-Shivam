@@ -26,7 +26,12 @@ func Load() (*Config, error) {
 		return nil, fmt.Errorf("JWT_SECRET is required")
 	}
 
-	port := os.Getenv("API_PORT")
+	port := os.Getenv("PORT")
+	
+	if port == "" {
+		port = os.Getenv("API_PORT")
+	}
+	
 	if port == "" {
 		port = "8080"
 	}

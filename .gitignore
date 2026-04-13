@@ -15,7 +15,6 @@ Thumbs.db
 
 # Go
 backend/tmp/
-backend/go.sum
 
 # Node
 frontend/node_modules/
