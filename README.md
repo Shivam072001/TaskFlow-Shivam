@@ -52,11 +52,11 @@ HTTP Request
      │
      ▼
 ┌─────────────────────────────────────────────────┐
-│  Middleware (CORS, Logger, Recovery, RealIP)     │
+│  Middleware (CORS, Logger, Recovery, RealIP)    │
 ├─────────────────────────────────────────────────┤
-│  Auth Middleware (JWT validation)                │
+│  Auth Middleware (JWT validation)               │
 ├─────────────────────────────────────────────────┤
-│  Guard Middleware (OrgGuard / WorkspaceGuard)    │
+│  Guard Middleware (OrgGuard / WorkspaceGuard)   │
 └──────────────────────┬──────────────────────────┘
                        │
                        ▼
@@ -285,14 +285,14 @@ docker compose up
          │
          ▼
 ┌─────────────────────────────────────────────┐
-│  1. PostgreSQL starts, waits for healthcheck │
-│  2. Backend container starts                 │
-│     ├── Runs all 14 database migrations      │
+│  1. PostgreSQL starts, waits for healthcheck│
+│  2. Backend container starts                │
+│     ├── Runs all 14 database migrations     │
 │     ├── Runs Go seeder (10 users, 3 orgs,   │
-│     │   3 workspaces, 2 teams, 10 projects,  │
-│     │   ~190 tasks)                           │
-│     └── Starts the API server on :8080       │
-│  3. Frontend container starts (Nginx on :80) │
+│     │   3 workspaces, 2 teams, 10 projects, │
+│     │   ~190 tasks)                         │
+│     └── Starts the API server on :8080      │
+│  3. Frontend container starts (Nginx on :80)│
 └─────────────────────────────────────────────┘
 ```
 
