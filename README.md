@@ -23,6 +23,16 @@ A production-grade, multi-tenant task management platform with organizations, wo
 
 ---
 
+## Live Deployment
+<a href="https://task-flow-shivam.vercel.app/" target="_blank">
+  <img width="1915" height="970" alt="TaskFlow Preview" src="https://github.com/user-attachments/assets/db276cab-e4c5-47fa-81f2-40fbe19af3da" />
+</a>
+
+- **🚀 Live App:** [Task-Flow](https://task-flow-shivam.vercel.app/)
+
+*(Log in with `test@example.com` / `password123` to explore seeded data.)*
+---
+
 ## Overview
 
 TaskFlow lets teams organize work across **Organizations**, **Workspaces**, and **Projects**. Users can be grouped into **Teams**, invited at the organization level, and assigned independent roles at every tier. Tasks live on a Kanban board with four statuses (Todo, In Progress, Blocked, Done), Jira-style keys (`PROJ-001`), custom fields, comments, WIP limits, and full pagination/filtering/search. The app features **real-time updates via WebSocket** (live task changes, automatic session expiry), a **personal dashboard** with cross-project task overview, and an **org-level admin dashboard** where managers can view member stats and tasks. Dark mode, drag-and-drop, and responsive design (375px–1280px) are built in.
