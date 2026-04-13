@@ -1,0 +1,25 @@
+---
+description: SQL migration file conventions for TaskFlow
+globs: backend/migrations/**/*.sql
+alwaysApply: false
+---
+
+# SQL Migration Conventions
+
+## File Naming
+- Format: `NNNNNN_description.up.sql` / `NNNNNN_description.down.sql`
+- Sequential numbering: 000001, 000002, etc.
+- Every migration MUST have both up and down files.
+
+## Schema Rules
+- Use `uuid` primary keys with `gen_random_uuid()` default.
+- Use `timestamptz` for all timestamps, default `now()`.
+- Use PostgreSQL enums or CHECK constraints for status/role fields.
+- Explicit `NOT NULL` on all required columns.
+- Add indexes on foreign keys and frequently filtered columns.
+- Down migrations must cleanly reverse the up migration (DROP TABLE, not TRUNCATE).
+
+## Style
+- Uppercase SQL keywords: `CREATE TABLE`, `ALTER TABLE`, `DROP TABLE`.
+- Snake_case for table and column names.
+- One statement per line for readability.

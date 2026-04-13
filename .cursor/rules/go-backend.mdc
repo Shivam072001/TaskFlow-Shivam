@@ -1,0 +1,30 @@
+---
+description: Go backend coding conventions for TaskFlow
+globs: backend/**/*.go
+alwaysApply: false
+---
+
+# Go Backend Conventions
+
+## Layer Boundaries
+- **handler/**: Parse request, validate via DTO, call service, write JSON response. No SQL, no business logic.
+- **service/**: Business rules, authorization checks, orchestrate repositories. No HTTP awareness.
+- **repository/**: Pure SQL via pgx. Accept/return domain models. No business logic.
+- **domain/**: Plain structs only. No imports from other internal packages.
+- **dto/**: Request/response structs with validation. Maps to/from domain models.
+
+## Error Handling
+- Always return errors, never ignore them: `if err != nil { return fmt.Errorf("operation: %w", err) }`
+- Wrap errors with context using `%w` for the chain.
+- Services return sentinel errors or typed errors; handlers map them to HTTP status codes.
+
+## Naming
+- Receivers: short, 1-2 letter (e.g., `s` for service, `r` for repository, `h` for handler).
+- Interfaces at the consumer side, not the provider side.
+- Exported types use full names: `UserRepository`, `AuthService`, `TaskHandler`.
+
+## Patterns
+- No global state or package-level vars (except `var ErrNotFound = errors.New(...)`).
+- Constructor functions: `NewXxxService(deps...) *XxxService`.
+- Context passed as first argument to all service/repository methods.
+- Use `slog` for structured logging. Log at handler/middleware level, not deep in repos.

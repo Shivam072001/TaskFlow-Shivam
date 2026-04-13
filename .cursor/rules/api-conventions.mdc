@@ -1,0 +1,33 @@
+---
+description: REST API design patterns for TaskFlow handlers
+globs: backend/internal/handler/**/*.go
+alwaysApply: false
+---
+
+# API Conventions
+
+## Response Format
+- All responses: `Content-Type: application/json`
+- Success: return resource or `{ "message": "..." }`
+- Validation error (400): `{ "error": "validation failed", "fields": { "email": "is required" } }`
+- Unauthenticated (401): `{ "error": "unauthorized" }`
+- Forbidden (403): `{ "error": "forbidden" }`
+- Not found (404): `{ "error": "not found" }`
+
+## Status Codes
+- 200: successful GET/PATCH
+- 201: successful POST (resource created)
+- 204: successful DELETE (no body)
+- 400: validation failure
+- 401: missing or invalid JWT — never conflate with 403
+- 403: valid JWT but action not permitted (wrong role, not owner, etc.)
+- 404: resource does not exist
+
+## Pagination
+- Query params: `?page=1&limit=20` (defaults: page=1, limit=20, max limit=100)
+- Response wrapper: `{ "data": [...], "meta": { "page": 1, "limit": 20, "total": 57 } }`
+
+## Workspace Scoping
+- All `/workspaces/:id/*` routes go through workspace membership guard middleware.
+- Middleware injects `workspace_role` into context; handlers/services check it for authorization.
+- Projects accessed via `/projects/:id` must still verify the user is a member of the project's workspace.

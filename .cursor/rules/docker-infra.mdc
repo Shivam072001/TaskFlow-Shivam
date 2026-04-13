@@ -1,0 +1,25 @@
+---
+description: Docker and infrastructure best practices for TaskFlow
+globs: "**/Dockerfile,**/docker-compose.yml,**/*.Dockerfile"
+alwaysApply: false
+---
+
+# Docker Infrastructure Conventions
+
+## Dockerfiles
+- Always use multi-stage builds: builder stage + minimal runtime stage.
+- Backend: build in `golang:1.22-alpine`, run in `alpine:3.19` (not scratch, need ca-certs + shell for entrypoint).
+- Frontend: build in `node:20-alpine`, serve with `nginx:alpine`.
+- Pin base image minor versions for reproducibility.
+- Copy dependency files first (go.mod/go.sum or package.json/package-lock.json), then install, then copy source — maximize layer caching.
+
+## Docker Compose
+- All services must start with a single `docker compose up` — zero manual steps.
+- PostgreSQL must have a health check; backend must `depends_on` with `condition: service_healthy`.
+- No secrets in docker-compose.yml — use `.env` file with `env_file` directive.
+- Named volumes for database persistence.
+
+## Security
+- Never bake secrets into images. Use environment variables at runtime.
+- JWT_SECRET, DATABASE_URL, POSTGRES_PASSWORD must come from `.env`.
+- `.env` is gitignored. `.env.example` is committed with placeholder values.

@@ -1,0 +1,30 @@
+---
+description: React + TypeScript frontend patterns for TaskFlow
+globs: frontend/src/**/*.{ts,tsx}
+alwaysApply: false
+---
+
+# React Frontend Conventions
+
+## Imports
+- Always use `@alias` paths: `@pages/`, `@features/`, `@components/`, `@hooks/`, `@utils/`, `@core/`, `@/types/`
+- NEVER use `@types/` (conflicts with npm @types namespace). Use `@/types/` instead.
+- Never use relative paths that cross folder boundaries (e.g., no `../../hooks/`).
+
+## Architecture
+- **@pages/**: One component per route. Thin orchestration — compose feature components, never contain business logic.
+- **@features/**: Feature-specific components. Self-contained per feature (auth, workspaces, projects, tasks).
+- **@hooks/**: TanStack Query wrappers for server state. One file per backend resource.
+- **@core/api/**: Axios instance with JWT interceptor. API functions grouped by resource.
+- **@core/providers/**: App-level providers (QueryClient, Theme, Auth).
+
+## Patterns
+- Functional components only. No class components.
+- No `any` type — use `unknown` and narrow, or define proper interfaces in `@types/`.
+- Use TanStack Query for all server state. Use Zustand only for client-only state (auth token/user).
+- Optimistic updates for task status changes (drag-and-drop).
+- Always handle loading, error, and empty states — no blank screens.
+
+## Styling
+- Tailwind CSS utility classes. Use `cn()` helper from `@utils/cn` for conditional classes.
+- shadcn/ui for base components. Customize via Tailwind, not inline styles.

@@ -1,0 +1,28 @@
+---
+description: TaskFlow project context, tech stack, architecture, and conventions
+alwaysApply: true
+---
+
+# TaskFlow Project Overview
+
+TaskFlow is a production-grade Trello-clone with multi-tenant Workspaces, built as a full-stack monorepo.
+
+## Tech Stack
+- **Backend**: Go 1.22+, Chi router, pgx, golang-migrate, bcrypt, golang-jwt, slog
+- **Frontend**: React 19, TypeScript 6, Vite 8, Tailwind CSS v4, shadcn/ui, React Router v7, TanStack Query v5, @dnd-kit, Zustand
+- **Database**: PostgreSQL 16
+- **Infra**: Docker Compose, multi-stage Dockerfiles, Nginx
+
+## Architecture
+- Backend: handler → service → repository → PostgreSQL (clean layers, constructor DI)
+- Frontend: @pages/ (route components) → @features/ (feature logic) → @hooks/ (TanStack Query) → @core/api/ (Axios)
+- Import aliases: `@pages`, `@features`, `@components`, `@hooks`, `@utils`, `@core`, `@styles`, `@assets`, and `@/types` (not `@types` — conflicts with npm)
+
+## Navigation Flow
+Login/Register → Workspace List → Workspace Dashboard (stats + projects + members) → Project Detail (Kanban) → Task Modal
+
+## URL Structure
+`/login`, `/register`, `/workspaces`, `/workspaces/:wid`, `/workspaces/:wid/projects/:pid`
+
+## Entities
+User, Workspace, WorkspaceMember (owner/admin/member roles), Project (scoped to workspace), Task (todo/in_progress/done)

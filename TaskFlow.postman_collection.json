@@ -1,0 +1,989 @@
+{
+	"info": {
+		"name": "TaskFlow API",
+		"description": "Complete API collection for TaskFlow — multi-tenant task management platform.\n\nBase URL: http://localhost:8080\n\n**Quick start:**\n1. Run `Login` request (pre-filled with test@example.com / password123)\n2. The token is auto-saved to the `token` collection variable\n3. All other requests use it via `{{token}}` in the Authorization header\n\n**Variables used:**\n- `baseUrl` — API base URL\n- `token` — JWT auth token (auto-set by Login)\n- `orgID`, `workspaceID`, `projectID`, `taskID`, `teamID`, `commentID`, `fieldID`, `invitationID`, `userID` — entity UUIDs to fill in as you test",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"variable": [
+		{ "key": "baseUrl", "value": "http://localhost:8080" },
+		{ "key": "token", "value": "" },
+		{ "key": "orgID", "value": "" },
+		{ "key": "workspaceID", "value": "" },
+		{ "key": "projectID", "value": "" },
+		{ "key": "taskID", "value": "" },
+		{ "key": "teamID", "value": "" },
+		{ "key": "commentID", "value": "" },
+		{ "key": "fieldID", "value": "" },
+		{ "key": "invitationID", "value": "" },
+		{ "key": "userID", "value": "" }
+	],
+	"auth": {
+		"type": "bearer",
+		"bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }]
+	},
+	"item": [
+		{
+			"name": "Auth",
+			"item": [
+				{
+					"name": "Register",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"auth": { "type": "noauth" },
+						"url": { "raw": "{{baseUrl}}/auth/register", "host": ["{{baseUrl}}"], "path": ["auth", "register"] },
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"New User\",\n  \"email\": \"newuser@example.com\",\n  \"password\": \"password123\"\n}",
+							"options": { "raw": { "language": "json" } }
+						}
+					}
+				},
+				{
+					"name": "Login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const res = pm.response.json();",
+									"if (res.token) {",
+									"    pm.collectionVariables.set('token', res.token);",
+									"    console.log('Token saved to collection variable');",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"auth": { "type": "noauth" },
+						"url": { "raw": "{{baseUrl}}/auth/login", "host": ["{{baseUrl}}"], "path": ["auth", "login"] },
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"test@example.com\",\n  \"password\": \"password123\"\n}",
+							"options": { "raw": { "language": "json" } }
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Health",
+			"item": [
+				{
+					"name": "Health Check",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"auth": { "type": "noauth" },
+						"url": { "raw": "{{baseUrl}}/health", "host": ["{{baseUrl}}"], "path": ["health"] }
+					}
+				}
+			]
+		},
+		{
+			"name": "Invitations (User-Level)",
+			"item": [
+				{
+					"name": "List My Workspace Invitations",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": { "raw": "{{baseUrl}}/invitations", "host": ["{{baseUrl}}"], "path": ["invitations"] }
+					}
+				},
+				{
+					"name": "Respond to Workspace Invitation",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"url": { "raw": "{{baseUrl}}/invitations/{{invitationID}}", "host": ["{{baseUrl}}"], "path": ["invitations", "{{invitationID}}"] },
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"action\": \"accept\"\n}",
+							"options": { "raw": { "language": "json" } }
+						}
+					}
+				},
+				{
+					"name": "List My Org Invitations",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": { "raw": "{{baseUrl}}/org-invitations", "host": ["{{baseUrl}}"], "path": ["org-invitations"] }
+					}
+				},
+				{
+					"name": "Respond to Org Invitation",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"url": { "raw": "{{baseUrl}}/org-invitations/{{invitationID}}", "host": ["{{baseUrl}}"], "path": ["org-invitations", "{{invitationID}}"] },
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"action\": \"accept\"\n}",
+							"options": { "raw": { "language": "json" } }
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Organizations",
+			"item": [
+				{
+					"name": "List My Organizations",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": { "raw": "{{baseUrl}}/organizations", "host": ["{{baseUrl}}"], "path": ["organizations"] }
+					}
+				},
+				{
+					"name": "Create Organization",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": { "raw": "{{baseUrl}}/organizations", "host": ["{{baseUrl}}"], "path": ["organizations"] },
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"My New Org\",\n  \"slug\": \"my-new-org\"\n}",
+							"options": { "raw": { "language": "json" } }
+						}
+					}
+				},
+				{
+					"name": "Get Organization",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": { "raw": "{{baseUrl}}/organizations/{{orgID}}", "host": ["{{baseUrl}}"], "path": ["organizations", "{{orgID}}"] }
+					}
+				},
+				{
+					"name": "Update Organization",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"url": { "raw": "{{baseUrl}}/organizations/{{orgID}}", "host": ["{{baseUrl}}"], "path": ["organizations", "{{orgID}}"] },
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Updated Org Name\"\n}",
+							"options": { "raw": { "language": "json" } }
+						}
+					}
+				},
+				{
+					"name": "List Org Members",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": { "raw": "{{baseUrl}}/organizations/{{orgID}}/members", "host": ["{{baseUrl}}"], "path": ["organizations", "{{orgID}}", "members"] }
+					}
+				},
+				{
+					"name": "Remove Org Member",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": { "raw": "{{baseUrl}}/organizations/{{orgID}}/members/{{userID}}", "host": ["{{baseUrl}}"], "path": ["organizations", "{{orgID}}", "members", "{{userID}}"] }
+					}
+				},
+				{
+					"name": "Leave Organization",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": { "raw": "{{baseUrl}}/organizations/{{orgID}}/members/leave", "host": ["{{baseUrl}}"], "path": ["organizations", "{{orgID}}", "members", "leave"] }
+					}
+				},
+				{
+					"name": "List Project Prefixes",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": { "raw": "{{baseUrl}}/organizations/{{orgID}}/prefixes", "host": ["{{baseUrl}}"], "path": ["organizations", "{{orgID}}", "prefixes"] }
+					}
+				},
+				{
+					"name": "Get Task by Key",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": { "raw": "{{baseUrl}}/organizations/{{orgID}}/tasks/by-key/APIGW-001", "host": ["{{baseUrl}}"], "path": ["organizations", "{{orgID}}", "tasks", "by-key", "APIGW-001"] }
+					}
+				}
+			]
+		},
+		{
+			"name": "Org Invitations",
+			"item": [
+				{
+					"name": "Invite User to Org",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": { "raw": "{{baseUrl}}/organizations/{{orgID}}/invitations", "host": ["{{baseUrl}}"], "path": ["organizations", "{{orgID}}", "invitations"] },
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"newmember@example.com\",\n  \"role\": \"member\"\n}",
+							"options": { "raw": { "language": "json" } }
+						}
+					}
+				},
+				{
+					"name": "List Org Invitations",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": { "raw": "{{baseUrl}}/organizations/{{orgID}}/invitations", "host": ["{{baseUrl}}"], "path": ["organizations", "{{orgID}}", "invitations"] }
+					}
+				}
+			]
+		},
+		{
+			"name": "Teams",
+			"item": [
+				{
+					"name": "List Teams",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": { "raw": "{{baseUrl}}/organizations/{{orgID}}/teams", "host": ["{{baseUrl}}"], "path": ["organizations", "{{orgID}}", "teams"] }
+					}
+				},
+				{
+					"name": "Create Team",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": { "raw": "{{baseUrl}}/organizations/{{orgID}}/teams", "host": ["{{baseUrl}}"], "path": ["organizations", "{{orgID}}", "teams"] },
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"DevOps Squad\"\n}",
+							"options": { "raw": { "language": "json" } }
+						}
+					}
+				},
+				{
+					"name": "Get Team",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": { "raw": "{{baseUrl}}/organizations/{{orgID}}/teams/{{teamID}}", "host": ["{{baseUrl}}"], "path": ["organizations", "{{orgID}}", "teams", "{{teamID}}"] }
+					}
+				},
+				{
+					"name": "Update Team",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"url": { "raw": "{{baseUrl}}/organizations/{{orgID}}/teams/{{teamID}}", "host": ["{{baseUrl}}"], "path": ["organizations", "{{orgID}}", "teams", "{{teamID}}"] },
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Renamed Squad\"\n}",
+							"options": { "raw": { "language": "json" } }
+						}
+					}
+				},
+				{
+					"name": "Delete Team",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": { "raw": "{{baseUrl}}/organizations/{{orgID}}/teams/{{teamID}}", "host": ["{{baseUrl}}"], "path": ["organizations", "{{orgID}}", "teams", "{{teamID}}"] }
+					}
+				},
+				{
+					"name": "Add Member to Team",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": { "raw": "{{baseUrl}}/organizations/{{orgID}}/teams/{{teamID}}/members", "host": ["{{baseUrl}}"], "path": ["organizations", "{{orgID}}", "teams", "{{teamID}}", "members"] },
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"user_id\": \"{{userID}}\"\n}",
+							"options": { "raw": { "language": "json" } }
+						}
+					}
+				},
+				{
+					"name": "Remove Member from Team",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": { "raw": "{{baseUrl}}/organizations/{{orgID}}/teams/{{teamID}}/members/{{userID}}", "host": ["{{baseUrl}}"], "path": ["organizations", "{{orgID}}", "teams", "{{teamID}}", "members", "{{userID}}"] }
+					}
+				}
+			]
+		},
+		{
+			"name": "Workspaces",
+			"item": [
+				{
+					"name": "List Workspaces",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": { "raw": "{{baseUrl}}/organizations/{{orgID}}/workspaces", "host": ["{{baseUrl}}"], "path": ["organizations", "{{orgID}}", "workspaces"] }
+					}
+				},
+				{
+					"name": "Create Workspace",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": { "raw": "{{baseUrl}}/organizations/{{orgID}}/workspaces", "host": ["{{baseUrl}}"], "path": ["organizations", "{{orgID}}", "workspaces"] },
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Design\",\n  \"description\": \"Design team workspace\"\n}",
+							"options": { "raw": { "language": "json" } }
+						}
+					}
+				},
+				{
+					"name": "Get Workspace",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": { "raw": "{{baseUrl}}/organizations/{{orgID}}/workspaces/{{workspaceID}}", "host": ["{{baseUrl}}"], "path": ["organizations", "{{orgID}}", "workspaces", "{{workspaceID}}"] }
+					}
+				},
+				{
+					"name": "Update Workspace",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"url": { "raw": "{{baseUrl}}/organizations/{{orgID}}/workspaces/{{workspaceID}}", "host": ["{{baseUrl}}"], "path": ["organizations", "{{orgID}}", "workspaces", "{{workspaceID}}"] },
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Updated Workspace\",\n  \"description\": \"New description\"\n}",
+							"options": { "raw": { "language": "json" } }
+						}
+					}
+				},
+				{
+					"name": "Delete Workspace",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": { "raw": "{{baseUrl}}/organizations/{{orgID}}/workspaces/{{workspaceID}}", "host": ["{{baseUrl}}"], "path": ["organizations", "{{orgID}}", "workspaces", "{{workspaceID}}"] }
+					}
+				},
+				{
+					"name": "Get Workspace Stats",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": { "raw": "{{baseUrl}}/organizations/{{orgID}}/workspaces/{{workspaceID}}/stats", "host": ["{{baseUrl}}"], "path": ["organizations", "{{orgID}}", "workspaces", "{{workspaceID}}", "stats"] }
+					}
+				}
+			]
+		},
+		{
+			"name": "Workspace Members",
+			"item": [
+				{
+					"name": "List Workspace Members",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": { "raw": "{{baseUrl}}/organizations/{{orgID}}/workspaces/{{workspaceID}}/members", "host": ["{{baseUrl}}"], "path": ["organizations", "{{orgID}}", "workspaces", "{{workspaceID}}", "members"] }
+					}
+				},
+				{
+					"name": "Invite Member by Email",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": { "raw": "{{baseUrl}}/organizations/{{orgID}}/workspaces/{{workspaceID}}/members", "host": ["{{baseUrl}}"], "path": ["organizations", "{{orgID}}", "workspaces", "{{workspaceID}}", "members"] },
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"invite@example.com\",\n  \"role\": \"member\"\n}",
+							"options": { "raw": { "language": "json" } }
+						}
+					}
+				},
+				{
+					"name": "Direct Add Org Member to Workspace",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": { "raw": "{{baseUrl}}/organizations/{{orgID}}/workspaces/{{workspaceID}}/members/add", "host": ["{{baseUrl}}"], "path": ["organizations", "{{orgID}}", "workspaces", "{{workspaceID}}", "members", "add"] },
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"user_id\": \"{{userID}}\",\n  \"role\": \"member\"\n}",
+							"options": { "raw": { "language": "json" } }
+						}
+					}
+				},
+				{
+					"name": "Leave Workspace",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": { "raw": "{{baseUrl}}/organizations/{{orgID}}/workspaces/{{workspaceID}}/members/leave", "host": ["{{baseUrl}}"], "path": ["organizations", "{{orgID}}", "workspaces", "{{workspaceID}}", "members", "leave"] }
+					}
+				},
+				{
+					"name": "Update Member Role",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"url": { "raw": "{{baseUrl}}/organizations/{{orgID}}/workspaces/{{workspaceID}}/members/{{userID}}", "host": ["{{baseUrl}}"], "path": ["organizations", "{{orgID}}", "workspaces", "{{workspaceID}}", "members", "{{userID}}"] },
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"role\": \"admin\"\n}",
+							"options": { "raw": { "language": "json" } }
+						}
+					}
+				},
+				{
+					"name": "Remove Workspace Member",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": { "raw": "{{baseUrl}}/organizations/{{orgID}}/workspaces/{{workspaceID}}/members/{{userID}}", "host": ["{{baseUrl}}"], "path": ["organizations", "{{orgID}}", "workspaces", "{{workspaceID}}", "members", "{{userID}}"] }
+					}
+				},
+				{
+					"name": "List Workspace Invitations",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": { "raw": "{{baseUrl}}/organizations/{{orgID}}/workspaces/{{workspaceID}}/invitations", "host": ["{{baseUrl}}"], "path": ["organizations", "{{orgID}}", "workspaces", "{{workspaceID}}", "invitations"] }
+					}
+				}
+			]
+		},
+		{
+			"name": "Workspace Teams",
+			"item": [
+				{
+					"name": "Assign Team to Workspace",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": { "raw": "{{baseUrl}}/organizations/{{orgID}}/workspaces/{{workspaceID}}/teams", "host": ["{{baseUrl}}"], "path": ["organizations", "{{orgID}}", "workspaces", "{{workspaceID}}", "teams"] },
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"team_id\": \"{{teamID}}\",\n  \"default_role\": \"member\"\n}",
+							"options": { "raw": { "language": "json" } }
+						}
+					}
+				},
+				{
+					"name": "Remove Team from Workspace",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": { "raw": "{{baseUrl}}/organizations/{{orgID}}/workspaces/{{workspaceID}}/teams/{{teamID}}", "host": ["{{baseUrl}}"], "path": ["organizations", "{{orgID}}", "workspaces", "{{workspaceID}}", "teams", "{{teamID}}"] }
+					}
+				}
+			]
+		},
+		{
+			"name": "Projects",
+			"item": [
+				{
+					"name": "List Projects in Workspace",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/organizations/{{orgID}}/workspaces/{{workspaceID}}/projects?page=1&limit=5",
+							"host": ["{{baseUrl}}"],
+							"path": ["organizations", "{{orgID}}", "workspaces", "{{workspaceID}}", "projects"],
+							"query": [
+								{ "key": "page", "value": "1" },
+								{ "key": "limit", "value": "5" },
+								{ "key": "search", "value": "", "disabled": true },
+								{ "key": "owner", "value": "", "disabled": true }
+							]
+						}
+					}
+				},
+				{
+					"name": "Create Project",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": { "raw": "{{baseUrl}}/organizations/{{orgID}}/workspaces/{{workspaceID}}/projects", "host": ["{{baseUrl}}"], "path": ["organizations", "{{orgID}}", "workspaces", "{{workspaceID}}", "projects"] },
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"New Project\",\n  \"prefix\": \"NEWP\",\n  \"description\": \"A brand new project\"\n}",
+							"options": { "raw": { "language": "json" } }
+						}
+					}
+				},
+				{
+					"name": "Get Project",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": { "raw": "{{baseUrl}}/projects/{{projectID}}", "host": ["{{baseUrl}}"], "path": ["projects", "{{projectID}}"] }
+					}
+				},
+				{
+					"name": "Update Project",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"url": { "raw": "{{baseUrl}}/projects/{{projectID}}", "host": ["{{baseUrl}}"], "path": ["projects", "{{projectID}}"] },
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Updated Project Name\",\n  \"description\": \"Updated description\"\n}",
+							"options": { "raw": { "language": "json" } }
+						}
+					}
+				},
+				{
+					"name": "Delete Project",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": { "raw": "{{baseUrl}}/projects/{{projectID}}", "host": ["{{baseUrl}}"], "path": ["projects", "{{projectID}}"] }
+					}
+				}
+			]
+		},
+		{
+			"name": "Project Members",
+			"item": [
+				{
+					"name": "List Project Members",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": { "raw": "{{baseUrl}}/organizations/{{orgID}}/workspaces/{{workspaceID}}/projects/{{projectID}}/members", "host": ["{{baseUrl}}"], "path": ["organizations", "{{orgID}}", "workspaces", "{{workspaceID}}", "projects", "{{projectID}}", "members"] }
+					}
+				},
+				{
+					"name": "Add Member to Project",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": { "raw": "{{baseUrl}}/organizations/{{orgID}}/workspaces/{{workspaceID}}/projects/{{projectID}}/members", "host": ["{{baseUrl}}"], "path": ["organizations", "{{orgID}}", "workspaces", "{{workspaceID}}", "projects", "{{projectID}}", "members"] },
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"user_id\": \"{{userID}}\",\n  \"role\": \"member\"\n}",
+							"options": { "raw": { "language": "json" } }
+						}
+					}
+				},
+				{
+					"name": "Leave Project",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": { "raw": "{{baseUrl}}/organizations/{{orgID}}/workspaces/{{workspaceID}}/projects/{{projectID}}/members/leave", "host": ["{{baseUrl}}"], "path": ["organizations", "{{orgID}}", "workspaces", "{{workspaceID}}", "projects", "{{projectID}}", "members", "leave"] }
+					}
+				},
+				{
+					"name": "Update Project Member Role",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"url": { "raw": "{{baseUrl}}/organizations/{{orgID}}/workspaces/{{workspaceID}}/projects/{{projectID}}/members/{{userID}}", "host": ["{{baseUrl}}"], "path": ["organizations", "{{orgID}}", "workspaces", "{{workspaceID}}", "projects", "{{projectID}}", "members", "{{userID}}"] },
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"role\": \"lead\"\n}",
+							"options": { "raw": { "language": "json" } }
+						}
+					}
+				},
+				{
+					"name": "Remove Project Member",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": { "raw": "{{baseUrl}}/organizations/{{orgID}}/workspaces/{{workspaceID}}/projects/{{projectID}}/members/{{userID}}", "host": ["{{baseUrl}}"], "path": ["organizations", "{{orgID}}", "workspaces", "{{workspaceID}}", "projects", "{{projectID}}", "members", "{{userID}}"] }
+					}
+				},
+				{
+					"name": "Assign Team to Project",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": { "raw": "{{baseUrl}}/organizations/{{orgID}}/workspaces/{{workspaceID}}/projects/{{projectID}}/teams", "host": ["{{baseUrl}}"], "path": ["organizations", "{{orgID}}", "workspaces", "{{workspaceID}}", "projects", "{{projectID}}", "teams"] },
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"team_id\": \"{{teamID}}\",\n  \"default_role\": \"member\"\n}",
+							"options": { "raw": { "language": "json" } }
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Tasks",
+			"item": [
+				{
+					"name": "List Tasks",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/projects/{{projectID}}/tasks?page=1&limit=20",
+							"host": ["{{baseUrl}}"],
+							"path": ["projects", "{{projectID}}", "tasks"],
+							"query": [
+								{ "key": "page", "value": "1" },
+								{ "key": "limit", "value": "20" },
+								{ "key": "status", "value": "todo", "disabled": true },
+								{ "key": "assignee", "value": "", "disabled": true },
+								{ "key": "priority", "value": "high", "disabled": true },
+								{ "key": "search", "value": "", "disabled": true }
+							]
+						}
+					}
+				},
+				{
+					"name": "Create Task",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": { "raw": "{{baseUrl}}/projects/{{projectID}}/tasks", "host": ["{{baseUrl}}"], "path": ["projects", "{{projectID}}", "tasks"] },
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"title\": \"Implement login page\",\n  \"description\": \"Build the login form with email and password\",\n  \"priority\": \"high\",\n  \"assignee_id\": null,\n  \"start_date\": \"2026-04-13\",\n  \"due_date\": \"2026-04-20\"\n}",
+							"options": { "raw": { "language": "json" } }
+						}
+					}
+				},
+				{
+					"name": "Update Task",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"url": { "raw": "{{baseUrl}}/tasks/{{taskID}}", "host": ["{{baseUrl}}"], "path": ["tasks", "{{taskID}}"] },
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"title\": \"Updated title\",\n  \"status\": \"in_progress\",\n  \"priority\": \"medium\"\n}",
+							"options": { "raw": { "language": "json" } }
+						}
+					}
+				},
+				{
+					"name": "Update Task (Set Blocked)",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"url": { "raw": "{{baseUrl}}/tasks/{{taskID}}", "host": ["{{baseUrl}}"], "path": ["tasks", "{{taskID}}"] },
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"status\": \"blocked\",\n  \"blocked_reason\": \"Waiting on API spec\",\n  \"blocked_by_task\": \"APIGW-001\"\n}",
+							"options": { "raw": { "language": "json" } }
+						}
+					}
+				},
+				{
+					"name": "Delete Task",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": { "raw": "{{baseUrl}}/tasks/{{taskID}}", "host": ["{{baseUrl}}"], "path": ["tasks", "{{taskID}}"] }
+					}
+				}
+			]
+		},
+		{
+			"name": "Comments",
+			"item": [
+				{
+					"name": "List Project Comments",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": { "raw": "{{baseUrl}}/projects/{{projectID}}/comments", "host": ["{{baseUrl}}"], "path": ["projects", "{{projectID}}", "comments"] }
+					}
+				},
+				{
+					"name": "Create Project Comment",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": { "raw": "{{baseUrl}}/projects/{{projectID}}/comments", "host": ["{{baseUrl}}"], "path": ["projects", "{{projectID}}", "comments"] },
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"entity_type\": \"project\",\n  \"entity_id\": \"{{projectID}}\",\n  \"content\": \"This project is on track for Q2 delivery.\"\n}",
+							"options": { "raw": { "language": "json" } }
+						}
+					}
+				},
+				{
+					"name": "List Task Comments",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": { "raw": "{{baseUrl}}/tasks/{{taskID}}/comments", "host": ["{{baseUrl}}"], "path": ["tasks", "{{taskID}}", "comments"] }
+					}
+				},
+				{
+					"name": "Create Task Comment",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": { "raw": "{{baseUrl}}/tasks/{{taskID}}/comments", "host": ["{{baseUrl}}"], "path": ["tasks", "{{taskID}}", "comments"] },
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"entity_type\": \"task\",\n  \"entity_id\": \"{{taskID}}\",\n  \"content\": \"Started working on this. Should be done by Friday.\"\n}",
+							"options": { "raw": { "language": "json" } }
+						}
+					}
+				},
+				{
+					"name": "Create Reply Comment",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": { "raw": "{{baseUrl}}/tasks/{{taskID}}/comments", "host": ["{{baseUrl}}"], "path": ["tasks", "{{taskID}}", "comments"] },
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"entity_type\": \"task\",\n  \"entity_id\": \"{{taskID}}\",\n  \"parent_id\": \"{{commentID}}\",\n  \"content\": \"Sounds good, let me know if you need help.\"\n}",
+							"options": { "raw": { "language": "json" } }
+						}
+					}
+				},
+				{
+					"name": "Update Comment",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"url": { "raw": "{{baseUrl}}/comments/{{commentID}}", "host": ["{{baseUrl}}"], "path": ["comments", "{{commentID}}"] },
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"content\": \"Updated comment text.\"\n}",
+							"options": { "raw": { "language": "json" } }
+						}
+					}
+				},
+				{
+					"name": "Delete Comment",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": { "raw": "{{baseUrl}}/comments/{{commentID}}", "host": ["{{baseUrl}}"], "path": ["comments", "{{commentID}}"] }
+					}
+				}
+			]
+		},
+		{
+			"name": "Custom Fields",
+			"item": [
+				{
+					"name": "List Custom Field Definitions",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": { "raw": "{{baseUrl}}/projects/{{projectID}}/custom-fields", "host": ["{{baseUrl}}"], "path": ["projects", "{{projectID}}", "custom-fields"] }
+					}
+				},
+				{
+					"name": "Create Text Field",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": { "raw": "{{baseUrl}}/projects/{{projectID}}/custom-fields", "host": ["{{baseUrl}}"], "path": ["projects", "{{projectID}}", "custom-fields"] },
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Sprint\",\n  \"field_type\": \"text\",\n  \"required\": false\n}",
+							"options": { "raw": { "language": "json" } }
+						}
+					}
+				},
+				{
+					"name": "Create Select Field",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": { "raw": "{{baseUrl}}/projects/{{projectID}}/custom-fields", "host": ["{{baseUrl}}"], "path": ["projects", "{{projectID}}", "custom-fields"] },
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Environment\",\n  \"field_type\": \"select\",\n  \"options\": [\"Development\", \"Staging\", \"Production\"],\n  \"required\": true\n}",
+							"options": { "raw": { "language": "json" } }
+						}
+					}
+				},
+				{
+					"name": "Create Number Field",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": { "raw": "{{baseUrl}}/projects/{{projectID}}/custom-fields", "host": ["{{baseUrl}}"], "path": ["projects", "{{projectID}}", "custom-fields"] },
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Story Points\",\n  \"field_type\": \"number\",\n  \"required\": false\n}",
+							"options": { "raw": { "language": "json" } }
+						}
+					}
+				},
+				{
+					"name": "Delete Custom Field Definition",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": { "raw": "{{baseUrl}}/projects/{{projectID}}/custom-fields/{{fieldID}}", "host": ["{{baseUrl}}"], "path": ["projects", "{{projectID}}", "custom-fields", "{{fieldID}}"] }
+					}
+				},
+				{
+					"name": "Get Task Custom Field Values",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": { "raw": "{{baseUrl}}/tasks/{{taskID}}/custom-fields", "host": ["{{baseUrl}}"], "path": ["tasks", "{{taskID}}", "custom-fields"] }
+					}
+				},
+				{
+					"name": "Set Task Custom Field Value",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"url": { "raw": "{{baseUrl}}/tasks/{{taskID}}/custom-fields/{{fieldID}}", "host": ["{{baseUrl}}"], "path": ["tasks", "{{taskID}}", "custom-fields", "{{fieldID}}"] },
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"value\": \"Sprint 12\"\n}",
+							"options": { "raw": { "language": "json" } }
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "WIP Limits",
+			"item": [
+				{
+					"name": "Get WIP Limits",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": { "raw": "{{baseUrl}}/projects/{{projectID}}/wip-limits", "host": ["{{baseUrl}}"], "path": ["projects", "{{projectID}}", "wip-limits"] }
+					}
+				},
+				{
+					"name": "Set WIP Limit",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"url": { "raw": "{{baseUrl}}/projects/{{projectID}}/wip-limits", "host": ["{{baseUrl}}"], "path": ["projects", "{{projectID}}", "wip-limits"] },
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"status\": \"in_progress\",\n  \"max_tasks\": 5\n}",
+							"options": { "raw": { "language": "json" } }
+						}
+					}
+				},
+				{
+					"name": "Delete WIP Limit",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": { "raw": "{{baseUrl}}/projects/{{projectID}}/wip-limits", "host": ["{{baseUrl}}"], "path": ["projects", "{{projectID}}", "wip-limits"] }
+					}
+				}
+			]
+		},
+		{
+			"name": "Personal Dashboard",
+			"item": [
+				{
+					"name": "My Tasks",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/dashboard/my-tasks?page=1&limit=10",
+							"host": ["{{baseUrl}}"],
+							"path": ["dashboard", "my-tasks"],
+							"query": [
+								{ "key": "page", "value": "1" },
+								{ "key": "limit", "value": "10" },
+								{ "key": "status", "value": "todo", "disabled": true },
+								{ "key": "priority", "value": "high", "disabled": true },
+								{ "key": "search", "value": "", "disabled": true },
+								{ "key": "project_id", "value": "{{projectID}}", "disabled": true },
+								{ "key": "due_before", "value": "2025-12-31", "disabled": true },
+								{ "key": "due_after", "value": "2025-01-01", "disabled": true }
+							]
+						}
+					}
+				},
+				{
+					"name": "My Stats",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": { "raw": "{{baseUrl}}/dashboard/my-stats", "host": ["{{baseUrl}}"], "path": ["dashboard", "my-stats"] }
+					}
+				},
+				{
+					"name": "My Projects",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": { "raw": "{{baseUrl}}/dashboard/my-projects", "host": ["{{baseUrl}}"], "path": ["dashboard", "my-projects"] }
+					}
+				}
+			]
+		},
+		{
+			"name": "Org Admin Dashboard",
+			"description": "Org-scoped dashboard endpoints. Requires manager role or above. Returns data for members below the caller's role level.",
+			"item": [
+				{
+					"name": "Member Stats (manager+)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": { "raw": "{{baseUrl}}/organizations/{{orgID}}/dashboard/member-stats", "host": ["{{baseUrl}}"], "path": ["organizations", "{{orgID}}", "dashboard", "member-stats"] }
+					}
+				},
+				{
+					"name": "Member Tasks (manager+)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/organizations/{{orgID}}/dashboard/member-tasks/{{userID}}?page=1&limit=10",
+							"host": ["{{baseUrl}}"],
+							"path": ["organizations", "{{orgID}}", "dashboard", "member-tasks", "{{userID}}"],
+							"query": [
+								{ "key": "page", "value": "1" },
+								{ "key": "limit", "value": "10" },
+								{ "key": "status", "value": "todo", "disabled": true },
+								{ "key": "priority", "value": "high", "disabled": true },
+								{ "key": "search", "value": "", "disabled": true }
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "WebSocket",
+			"description": "WebSocket endpoint for real-time updates. Connect using a WebSocket client (not a standard HTTP request).\n\nEvents received: task_created, task_updated, task_deleted, force_logout.\n\nAuth is via the `token` query parameter (not the Authorization header).",
+			"item": [
+				{
+					"name": "WebSocket Connection (info only)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"auth": { "type": "noauth" },
+						"description": "This is an informational request. To actually connect, use a WebSocket client (e.g. Postman's WebSocket tab, wscat, or browser JS):\n\n```\nws://localhost:8080/ws?token=<your-jwt-token>\n```\n\nEvents you will receive:\n- task_created — { type, payload: <task>, project_id }\n- task_updated — { type, payload: <task>, project_id }\n- task_deleted — { type, payload: { id: \"<uuid>\" } }\n- force_logout — { type, payload: { reason: \"token_expired\" } }",
+						"url": {
+							"raw": "{{baseUrl}}/ws?token={{token}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["ws"],
+							"query": [
+								{ "key": "token", "value": "{{token}}" }
+							]
+						}
+					}
+				}
+			]
+		}
+	]
+}
