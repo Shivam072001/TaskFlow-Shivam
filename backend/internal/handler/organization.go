@@ -245,6 +245,47 @@ func (h *OrganizationHandler) RespondToOrgInvitation(w http.ResponseWriter, r *h
 	dto.WriteJSON(w, http.StatusOK, map[string]string{"message": "invitation " + verb})
 }
 
+func (h *OrganizationHandler) UpdateMemberRole(w http.ResponseWriter, r *http.Request) {
+	callerRole := middleware.GetOrgRole(r.Context())
+	if !callerRole.CanManageOrg() {
+		dto.WriteError(w, http.StatusForbidden, "forbidden")
+		return
+	}
+
+	targetUID, err := uuid.Parse(chi.URLParam(r, "userID"))
+	if err != nil {
+		dto.WriteError(w, http.StatusNotFound, "not found")
+		return
+	}
+
+	var req struct {
+		Role string `json:"role"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		dto.WriteError(w, http.StatusBadRequest, "invalid request body")
+		return
+	}
+	if req.Role == "" {
+		dto.WriteValidationError(w, map[string]string{"role": "is required"})
+		return
+	}
+
+	orgID := middleware.GetOrgID(r.Context())
+	if err := h.orgSvc.UpdateMemberRole(r.Context(), orgID, targetUID, callerRole, domain.OrgRole(req.Role)); err != nil {
+		if errors.Is(err, domain.ErrForbidden) {
+			dto.WriteError(w, http.StatusForbidden, "forbidden")
+			return
+		}
+		if errors.Is(err, domain.ErrNotFound) {
+			dto.WriteError(w, http.StatusNotFound, "not found")
+			return
+		}
+		dto.WriteError(w, http.StatusInternalServerError, "internal server error")
+		return
+	}
+	dto.WriteJSON(w, http.StatusOK, map[string]string{"message": "role updated"})
+}
+
 func (h *OrganizationHandler) RemoveMember(w http.ResponseWriter, r *http.Request) {
 	orgRole := middleware.GetOrgRole(r.Context())
 	if !orgRole.CanManageOrg() {

@@ -146,6 +146,7 @@ func main() {
 			r.Get("/invitations", orgHandler.ListOrgInvitations)
 
 			// Org member management
+			r.Patch("/members/{userID}/role", orgHandler.UpdateMemberRole)
 			r.Delete("/members/{userID}", orgHandler.RemoveMember)
 			r.Post("/members/leave", orgHandler.LeaveOrg)
 

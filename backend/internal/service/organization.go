@@ -103,6 +103,22 @@ func (s *OrganizationService) GetTaskByKey(ctx context.Context, orgID uuid.UUID,
 	return s.orgRepo.GetTaskByKey(ctx, orgID, taskKey)
 }
 
+func (s *OrganizationService) UpdateMemberRole(ctx context.Context, orgID, targetUserID uuid.UUID, callerRole domain.OrgRole, newRole domain.OrgRole) error {
+	if !callerRole.CanManageOrg() {
+		return domain.ErrForbidden
+	}
+
+	target, err := s.orgRepo.GetMember(ctx, orgID, targetUserID)
+	if err != nil {
+		return err
+	}
+	if target.Role == domain.OrgRoleOwner {
+		return domain.ErrForbidden
+	}
+
+	return s.orgRepo.UpdateMemberRole(ctx, orgID, targetUserID, newRole)
+}
+
 // RemoveMemberCascade removes a user from the org and all descendant entities:
 // project_members -> workspace_members -> team_members -> organization_members
 func (s *OrganizationService) RemoveMemberCascade(ctx context.Context, orgID, userID uuid.UUID) error {

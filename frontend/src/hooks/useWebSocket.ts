@@ -24,6 +24,7 @@ export function useWebSocket() {
         case 'force_logout':
           toast.error('Session expired', { description: 'Please log in again.' });
           logout();
+          window.location.href = '/login';
           break;
         case 'task_created':
         case 'task_updated':
@@ -34,9 +35,8 @@ export function useWebSocket() {
             queryClient.invalidateQueries({ queryKey: ['project', projectId] });
           }
           queryClient.invalidateQueries({ queryKey: ['dashboard'] });
-          queryClient.invalidateQueries({ queryKey: ['workspace-stats'] });
           queryClient.invalidateQueries({ queryKey: ['projects'] });
-          queryClient.invalidateQueries({ queryKey: ['my-stats'] });
+          queryClient.invalidateQueries({ queryKey: ['workspace-stats'] });
           queryClient.invalidateQueries({ queryKey: ['org-dashboard'] });
           break;
         }

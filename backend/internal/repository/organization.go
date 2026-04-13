@@ -156,6 +156,14 @@ func (r *OrganizationRepository) SlugExists(ctx context.Context, slug string) (b
 	return exists, err
 }
 
+func (r *OrganizationRepository) UpdateMemberRole(ctx context.Context, orgID, userID uuid.UUID, role domain.OrgRole) error {
+	_, err := r.pool.Exec(ctx,
+		`UPDATE organization_members SET role = $3 WHERE org_id = $1 AND user_id = $2`,
+		orgID, userID, role,
+	)
+	return err
+}
+
 func (r *OrganizationRepository) RemoveMember(ctx context.Context, orgID, userID uuid.UUID) error {
 	_, err := r.pool.Exec(ctx,
 		`DELETE FROM organization_members WHERE org_id = $1 AND user_id = $2`, orgID, userID,

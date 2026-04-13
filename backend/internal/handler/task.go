@@ -219,8 +219,8 @@ func (h *TaskHandler) Delete(w http.ResponseWriter, r *http.Request) {
 	}
 	if h.hub != nil {
 		h.hub.BroadcastToAll(ws.Event{
-			Type: "task_deleted",
-			Payload: map[string]string{"id": taskID.String()},
+			Type:      "task_deleted",
+			Payload:   map[string]string{"id": taskID.String()},
 			ProjectID: task.ProjectID.String(),
 		})
 	}

@@ -3,6 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import {
   Settings, Users, UserPlus, Mail, Shield, Loader2, Trash2, ChevronLeft,
   BarChart3, CheckCircle2, Clock, AlertTriangle, CircleDot, ChevronDown, ChevronUp,
+  MoreVertical, UserMinus,
 } from 'lucide-react';
 import { PageShell } from '@components/layout/PageShell';
 import { Pagination } from '@components/ui/Pagination';
@@ -10,7 +11,7 @@ import { useAuth } from '@hooks/useAuth';
 import { useOrgMembers } from '@hooks/useOrganizations';
 import { useOrgInvitations, useSendOrgInvite } from '@hooks/useOrgInvitations';
 import { useTeams, useCreateTeam, useTeamDetail, useAddTeamMember, useRemoveTeamMember, useDeleteTeam } from '@hooks/useTeams';
-import { useRemoveOrgMember } from '@hooks/useWorkspaces';
+import { useRemoveOrgMember, useUpdateOrgMemberRole } from '@hooks/useWorkspaces';
 import { useOrgMemberStats, useOrgMemberTasks } from '@hooks/useOrgDashboard';
 import type { OrgRole, Team, Task } from '@/types';
 import { cn } from '@utils/cn';
@@ -79,41 +80,98 @@ export function OrgSettingsPage() {
 }
 
 function MembersTab({ orgId, myRole }: { orgId: string; myRole?: OrgRole }) {
+  const { user } = useAuth();
   const { data: members, isLoading } = useOrgMembers(orgId);
   const removeMember = useRemoveOrgMember(orgId);
+  const updateRole = useUpdateOrgMemberRole(orgId);
+  const [openMenu, setOpenMenu] = useState<string | null>(null);
 
   if (isLoading) return <Loader2 className="mx-auto h-8 w-8 animate-spin text-muted-foreground" />;
 
+  const assignableRoles: OrgRole[] = ['admin', 'manager', 'member'];
+  const canAct = canManageOrg(myRole);
+
   return (
     <div className="space-y-3">
-      {members?.map(m => (
-        <div key={m.id} className="flex items-center justify-between rounded-lg border border-border bg-card p-4">
-          <div>
-            <p className="font-medium text-foreground">{m.user_name}</p>
-            <p className="text-sm text-muted-foreground">{m.user_email}</p>
+      {members?.map(m => {
+        const isMe = m.user_id === user?.id;
+        const isOwner = m.role === 'owner';
+        const showActions = canAct && !isOwner && !isMe;
+
+        return (
+          <div key={m.id} className="flex items-center justify-between rounded-lg border border-border bg-card p-4">
+            <div className="flex items-center gap-3">
+              <div className="flex h-9 w-9 items-center justify-center rounded-full bg-primary/10 text-sm font-medium text-primary">
+                {m.user_name.charAt(0).toUpperCase()}
+              </div>
+              <div>
+                <p className="font-medium text-foreground">
+                  {m.user_name}
+                  {isMe && <span className="ml-1 text-muted-foreground text-xs">(you)</span>}
+                </p>
+                <p className="text-sm text-muted-foreground">{m.user_email}</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className={cn(
+                'inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium',
+                m.role === 'owner' ? 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400'
+                  : m.role === 'admin' ? 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400'
+                  : m.role === 'manager' ? 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400'
+                  : 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300',
+              )}>
+                <Shield className="h-3 w-3" />
+                {orgRoleLabels[m.role]}
+              </span>
+              {showActions && (
+                <div className="relative">
+                  <button
+                    onClick={() => setOpenMenu(openMenu === m.id ? null : m.id)}
+                    className="rounded-md p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
+                  >
+                    <MoreVertical className="h-4 w-4" />
+                  </button>
+                  {openMenu === m.id && (
+                    <div className="absolute right-0 mt-1 w-48 rounded-lg border border-border bg-card py-1 shadow-lg z-20">
+                      <p className="px-3 py-1.5 text-xs font-medium text-muted-foreground">Change Role</p>
+                      {assignableRoles.map(r => (
+                        <button
+                          key={r}
+                          disabled={r === m.role}
+                          onClick={() => {
+                            updateRole.mutate({ userId: m.user_id, role: r });
+                            setOpenMenu(null);
+                          }}
+                          className={cn(
+                            'flex w-full items-center gap-2 px-3 py-1.5 text-sm',
+                            r === m.role
+                              ? 'font-medium text-primary cursor-default'
+                              : 'text-foreground hover:bg-accent',
+                          )}
+                        >
+                          <Shield className="h-3 w-3" />
+                          {orgRoleLabels[r]}
+                          {r === m.role && <span className="ml-auto text-xs text-muted-foreground">current</span>}
+                        </button>
+                      ))}
+                      <div className="my-1 border-t border-border" />
+                      <button
+                        onClick={() => {
+                          removeMember.mutate(m.user_id);
+                          setOpenMenu(null);
+                        }}
+                        className="flex w-full items-center gap-2 px-3 py-2 text-sm text-destructive hover:bg-destructive/10"
+                      >
+                        <UserMinus className="h-3 w-3" /> Remove from Org
+                      </button>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
           </div>
-          <div className="flex items-center gap-3">
-            <span className={cn(
-              'inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium',
-              m.role === 'owner' ? 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400'
-                : m.role === 'admin' ? 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400'
-                : 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300',
-            )}>
-              <Shield className="h-3 w-3" />
-              {orgRoleLabels[m.role]}
-            </span>
-            {canManageOrg(myRole) && m.role !== 'owner' && (
-              <button
-                onClick={() => removeMember.mutate(m.user_id)}
-                className="text-destructive hover:text-destructive/80 transition-colors"
-                title="Remove member"
-              >
-                <Trash2 className="h-4 w-4" />
-              </button>
-            )}
-          </div>
-        </div>
-      ))}
+        );
+      })}
       {(!members || members.length === 0) && (
         <p className="text-center text-muted-foreground py-8">No members yet</p>
       )}
@@ -166,13 +224,14 @@ function TeamsTab({ orgId, myRole }: { orgId: string; myRole?: OrgRole }) {
       <div className="space-y-3">
         {teams?.map(t => (
           <div key={t.id} className="flex items-center justify-between rounded-lg border border-border bg-card p-4">
-            <button onClick={() => setSelectedTeam(t)} className="text-left">
+            <button onClick={() => setSelectedTeam(t)} className="text-left flex-1 min-w-0">
               <p className="font-medium text-foreground hover:text-primary transition-colors">{t.name}</p>
+              <TeamMemberPins orgId={orgId} teamId={t.id} />
             </button>
             {canManageTeams(myRole) && (
               <button
                 onClick={() => deleteTeam.mutate(t.id)}
-                className="text-destructive hover:text-destructive/80 transition-colors"
+                className="ml-3 shrink-0 text-destructive hover:text-destructive/80 transition-colors"
               >
                 <Trash2 className="h-4 w-4" />
               </button>
@@ -526,6 +585,41 @@ function MemberTasksExpanded({ orgId, userId, userName }: { orgId: string; userI
         <Pagination page={page} pageSize={pageSize} total={total} onPageChange={setPage}
           onPageSizeChange={s => { setPageSize(s); setPage(1); }} pageSizeOptions={[5, 10, 20]} />
       )}
+    </div>
+  );
+}
+
+function TeamMemberPins({ orgId, teamId }: { orgId: string; teamId: string }) {
+  const { data, isLoading } = useTeamDetail(orgId, teamId);
+  const members = data?.members || [];
+
+  if (isLoading) return <div className="mt-1.5 h-6" />;
+  if (members.length === 0) return <p className="mt-1 text-xs text-muted-foreground">No members</p>;
+
+  const visible = members.slice(0, 6);
+  const remaining = members.length - visible.length;
+
+  return (
+    <div className="mt-1.5 flex items-center">
+      <div className="flex -space-x-1.5">
+        {visible.map((m) => (
+          <div
+            key={m.id}
+            title={m.user_name}
+            className="flex h-6 w-6 items-center justify-center rounded-full border-2 border-card bg-primary/10 text-[10px] font-medium text-primary"
+          >
+            {m.user_name.charAt(0).toUpperCase()}
+          </div>
+        ))}
+        {remaining > 0 && (
+          <div className="flex h-6 w-6 items-center justify-center rounded-full border-2 border-card bg-muted text-[10px] font-medium text-muted-foreground">
+            +{remaining}
+          </div>
+        )}
+      </div>
+      <span className="ml-2 text-xs text-muted-foreground">
+        {members.length} member{members.length !== 1 ? 's' : ''}
+      </span>
     </div>
   );
 }

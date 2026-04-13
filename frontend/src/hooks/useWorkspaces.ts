@@ -104,3 +104,12 @@ export function useRemoveOrgMember(orgId: string) {
     onSuccess: () => qc.invalidateQueries({ queryKey: ['org-members', orgId] }),
   });
 }
+
+export function useUpdateOrgMemberRole(orgId: string) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ userId, role }: { userId: string; role: string }) =>
+      api.updateOrgMemberRole(orgId, userId, role),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['org-members', orgId] }),
+  });
+}

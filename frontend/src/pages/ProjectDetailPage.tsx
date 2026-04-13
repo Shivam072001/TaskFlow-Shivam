@@ -1,5 +1,5 @@
-import { useState, useMemo, useCallback, useRef } from 'react';
-import { useParams } from 'react-router-dom';
+import { useState, useMemo, useCallback, useRef, useEffect } from 'react';
+import { useParams, useSearchParams, useNavigate } from 'react-router-dom';
 import { Plus, Loader2, Filter, Search, MessageSquare, Settings, X, ChevronDown, ChevronUp } from 'lucide-react';
 import { PageShell } from '@components/layout/PageShell';
 import { Breadcrumbs } from '@components/layout/Breadcrumbs';
@@ -38,6 +38,8 @@ export function ProjectDetailPage() {
   const projectId = pid!;
   const { user, activeOrg } = useAuth();
   const orgId = activeOrg?.id ?? '';
+  const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
 
   const [modalOpen, setModalOpen] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
@@ -83,6 +85,21 @@ export function ProjectDetailPage() {
   const canManageSettings = rolePower[currentRole] >= rolePower.admin;
 
   const tasks = useMemo(() => tasksData?.data ?? [], [tasksData]);
+
+  const deepLinkedRef = useRef(false);
+  useEffect(() => {
+    if (deepLinkedRef.current) return;
+    const taskKey = searchParams.get('task');
+    if (!taskKey || tasks.length === 0) return;
+    const found = tasks.find((t) => t.task_key === taskKey);
+    if (found) {
+      deepLinkedRef.current = true;
+      setEditingTask(found);
+      setModalOpen(true);
+      setSearchParams({}, { replace: true });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [tasks]);
 
   const wipLimitMap = useMemo(
     () => new Map<TaskStatus, WIPLimit>(wipLimits.map((l) => [l.status, l])),
@@ -145,9 +162,13 @@ export function ProjectDetailPage() {
   );
 
   const handleTaskClick = useCallback((task: Task) => {
-    setEditingTask(task);
-    setModalOpen(true);
-  }, []);
+    if (task.task_key) {
+      navigate(`/org/${orgSlug}/task/${task.task_key}`);
+    } else {
+      setEditingTask(task);
+      setModalOpen(true);
+    }
+  }, [navigate, orgSlug]);
 
   const handleSave = (data: {
     title: string;

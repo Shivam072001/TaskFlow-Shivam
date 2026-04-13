@@ -63,3 +63,7 @@ export async function leaveOrg(orgId: string): Promise<void> {
 export async function removeOrgMember(orgId: string, userId: string): Promise<void> {
   await apiClient.delete(`/organizations/${orgId}/members/${userId}`);
 }
+
+export async function updateOrgMemberRole(orgId: string, userId: string, role: string): Promise<void> {
+  await apiClient.patch(`/organizations/${orgId}/members/${userId}/role`, { role });
+}
